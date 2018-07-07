@@ -101,6 +101,8 @@ app.use(function(req, res, next) {
   next(createError(404));
 });
 
+// TODO: how to handle the production environment???
+//
 // error handler middleware - catch all the errors here
 app.use((err, req, res, next) => {
   console.log('*** error handling middleware ***', err);

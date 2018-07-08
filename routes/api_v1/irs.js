@@ -31,38 +31,40 @@ router.get('/:irID/files', (req, res, next) => {
     return; // exit this handler
   }
 
-  get_file_list_noexp()
-    .then(files => {
-      fileList.noexport = files;
+  Promise.all([getFileListNoexp(), getFileListExp()])
+    .then(results => {
+      console.log(results);
+      fileList.noexport = results[0];
+      fileList.export = results[1];
       res.json(fileList);
     })
     .catch(err => {
-      console.log('!!! Error: ', err);
-      next(err); // send to error handler
+      console.log(err);
+      next(err);
     });
 
-  // const startPath = process.env.DATA_FILE_DIR;
-  // fs.readdir(startPath, (err, files) => {
-  //   console.log(files);
-  //   files.forEach(file => {
-  //     const filename = path.join(startPath, file);
-  //     const stat = fs.statSync(filename);
-  //     if (stat.isFile()) {
-  //       fileList.noexport.push(file);
-  //       console.log(filename);
-  //       // console.log(stat);
-  //     }
+  // getFileListNoexp()
+  //   .then(files => {
+  //     fileList.noexport = files;
+  //     res.json(fileList);
+  //   })
+  //   .catch(err => {
+  //     console.log('!!! Error: ', err);
+  //     next(err); // send to error handler
   //   });
-  //   res.json(fileList);
-  // });
 
-  // res.json({ irID: irID });
-  // return;
+  // getFileListExp()
+  //   .then(files => {
+  //     fileList.export = files;
+  //     res.json(fileList);
+  //   })
+  //   .catch(err => {
+  //     console.log('!!! Error: ', err);
+  //     next(err); // send to error handler
+  //   });
 });
 
-function get_file_list() {}
-
-async function get_file_list_noexp() {
+const getFileListNoexp = async () => {
   let result = [];
 
   const startPath = process.env.DATA_FILE_DIR;
@@ -78,8 +80,19 @@ async function get_file_list_noexp() {
     }
   }
   return result;
-}
+};
 
-function get_file_list_exp() {}
+// TODO: finish the /exported api call
+const getFileListExp = async () => {
+  let result = await asyncCall();
+  return result;
+};
+
+const asyncCall = () => {
+  let result = ['exp001.zip', 'exp002.zip', 'exp003.7z'];
+  return new Promise((resolve, reject) => {
+    setTimeout(() => resolve(result), 500);
+  });
+};
 
 module.exports = router;

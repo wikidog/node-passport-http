@@ -1,4 +1,4 @@
-const fs = require('fs'); // Node file system module
+const fse = require('fs-extra');
 const path = require('path');
 
 const express = require('express');
@@ -15,31 +15,8 @@ router.get('/me', (req, res) => {
   res.json(req.user);
 });
 
-router.get('/private', (req, res) => {
-  res.send({ message: 'secret code 123456' });
-});
-
 //
-router.get('/dir', (req, res) => {
-  let fileList = {
-    noexport: [],
-    export: [],
-  };
-
-  fs.access('./sessions', fs.constants.R_OK | fs.constants.W_OK, err => {
-    if (err) {
-      console.log('./sessions: no access');
-      res.send({ message: 'no access' });
-    } else {
-      console.log('./sessions: access for read/write');
-      //res.send({ message: 'access for read/write' });
-      res.json(fileList);
-    }
-  });
-});
-
-//
-router.get('/:irID/files', (req, res) => {
+router.get('/:irID/files', (req, res, next) => {
   let fileList = {
     noexport: [],
     export: [],
@@ -54,53 +31,55 @@ router.get('/:irID/files', (req, res) => {
     return; // exit this handler
   }
 
-  const startPath = process.env.DATA_FILE_DIR;
-  fs.readdir(startPath, (err, files) => {
-    console.log(files);
-    files.forEach(file => {
-      const filename = path.join(startPath, file);
-      const stat = fs.statSync(filename);
-      if (stat.isFile()) {
-        fileList.noexport.push(file);
-        console.log(filename);
-        // console.log(stat);
-      }
+  get_file_list_noexp()
+    .then(files => {
+      fileList.noexport = files;
+      res.json(fileList);
+    })
+    .catch(err => {
+      console.log('!!! Error: ', err);
+      next(err); // send to error handler
     });
-    res.json(fileList);
-  });
+
+  // const startPath = process.env.DATA_FILE_DIR;
+  // fs.readdir(startPath, (err, files) => {
+  //   console.log(files);
+  //   files.forEach(file => {
+  //     const filename = path.join(startPath, file);
+  //     const stat = fs.statSync(filename);
+  //     if (stat.isFile()) {
+  //       fileList.noexport.push(file);
+  //       console.log(filename);
+  //       // console.log(stat);
+  //     }
+  //   });
+  //   res.json(fileList);
+  // });
 
   // res.json({ irID: irID });
   // return;
-
-  // fs.access('./sessions', fs.constants.R_OK | fs.constants.W_OK, err => {
-  //   if (err) {
-  //     console.log('./sessions: no access');
-  //     res.send({ message: 'no access' });
-  //   } else {
-  //     console.log('./sessions: access for read/write');
-  //     //res.send({ message: 'access for read/write' });
-  //     res.json(fileList);
-  //   }
-  // });
 });
 
+function get_file_list() {}
+
+async function get_file_list_noexp() {
+  let result = [];
+
+  const startPath = process.env.DATA_FILE_DIR;
+  //
+  const files = await fse.readdir(startPath);
+  for (const file of files) {
+    const filename = path.join(startPath, file);
+    const stat = await fse.stat(filename);
+    if (stat.isFile()) {
+      result.push(file);
+      console.log(filename);
+      // console.log(stat);
+    }
+  }
+  return result;
+}
+
+function get_file_list_exp() {}
+
 module.exports = router;
-
-// module.exports = app => {
-//   app.get('/api/current_user', auth.authStatus, (req, res) => {
-//     res.send(req.user);
-//   });
-
-//   app.get('/api/logout', (req, res) => {
-//     req.logout(); // this function is provided by Passport
-//     res.redirect('/');
-//   });
-
-//   app.get('/', (req, res) => {
-//     res.send({ message: 'secret code 123456' });
-//   });
-
-//   app.get('/api/me', auth.ensureAuthenticated, (req, res) => {
-//     res.json(req.user);
-//   });
-// };

@@ -64,10 +64,7 @@ const sess = {
   },
 };
 
-if (
-  process.env.NODE_ENV === 'production' ||
-  process.env.NODE_ENV === 'development_external'
-) {
+if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test') {
   app.set('trust proxy', true);
   // app.set('trust proxy', 1); // trust first proxy
   sess.cookie.secure = true; // serve secure cookies
@@ -82,10 +79,10 @@ app.use(passport.session());
 // ---------------------------------------------------------------------
 
 // for debugging
-app.use((req, res, next) => {
-  console.log(req.headers);
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log(req.headers);
+//   next();
+// });
 
 // App routes
 //

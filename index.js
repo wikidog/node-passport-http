@@ -16,9 +16,15 @@ const FileStore = require('session-file-store')(session);
 const passport = require('passport');
 // const cors = require('cors');
 
+// debugging
+const debug = require('debug')('myapi:index');
+
 const apiV1Router = require('./routes/api_v1');
 const userRouter = require('./routes/user');
 const homeRouter = require('./routes/home');
+// ===================================================================
+
+debug('NODE_ENV: %s', process.env.NODE_ENV);
 
 // Passport configuration first
 //
@@ -70,6 +76,8 @@ if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test') {
   sess.cookie.secure = true; // serve secure cookies
 }
 
+debug('session options: %O', sess);
+
 app.use(session(sess));
 
 // this is required to initialize Passport
@@ -79,10 +87,12 @@ app.use(passport.session());
 // ---------------------------------------------------------------------
 
 // for debugging
-// app.use((req, res, next) => {
-//   console.log(req.headers);
-//   next();
-// });
+if (debug.enabled) {
+  app.use((req, res, next) => {
+    debug('request headers: %O', req.headers);
+    next();
+  });
+}
 
 // App routes
 //

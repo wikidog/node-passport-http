@@ -1,5 +1,6 @@
 const fse = require('fs-extra');
 const path = require('path');
+const debug = require('debug')('myapi:irs');
 
 const express = require('express');
 const router = express.Router();
@@ -24,8 +25,6 @@ router.get('/:irID/files', (req, res, next) => {
 
   let irID = req.params.irID;
 
-  console.log('irID: ', irID);
-
   if (isNaN(irID) || !/^\d{7}$/.test(irID)) {
     res.status(404).json({ error: 'Not Found in route handler' });
     return; // exit this handler
@@ -33,13 +32,13 @@ router.get('/:irID/files', (req, res, next) => {
 
   Promise.all([getFileListNoexp(), getFileListExp()])
     .then(results => {
-      console.log(results);
+      debug('Async call results: %O', results);
       fileList.noexport = results[0];
       fileList.export = results[1];
       res.json(fileList);
     })
     .catch(err => {
-      console.log(err);
+      debug('!!! Async call error: %O', err);
       next(err);
     });
 
@@ -75,7 +74,6 @@ const getFileListNoexp = async () => {
     const stat = await fse.stat(filename);
     if (stat.isFile()) {
       result.push(file);
-      console.log(filename);
       // console.log(stat);
     }
   }

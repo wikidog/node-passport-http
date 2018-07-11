@@ -50,7 +50,7 @@ passport.use(
       ldapClient.bind(`${process.env.DOMAIN}\\${username}`, password, err => {
         if (err) {
           debug('!!! LDAP error: %O', err);
-          logger.warn('Not authenticated, user:[%s]', username);
+          logger.warn('LDAP cannot authenticate user:[%s]', username);
           ldapClient.unbind(); // close the connection
           return done(null, false);
         } else {

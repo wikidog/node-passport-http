@@ -3,6 +3,7 @@
 //
 
 // load dotenv as early as possible
+// only used in dev environment
 require('dotenv').config();
 
 // debugging
@@ -71,7 +72,7 @@ const sess = {
   resave: false,
   saveUninitialized: false,
   cookie: {
-    maxAge: 1 * 60 * 60 * 1000, // 1 hour
+    maxAge: Number(process.env.COOKIE_MAXAGE),
   },
 };
 
@@ -82,8 +83,6 @@ if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test') {
 }
 
 debug('session options: %O', sess);
-
-// logger.info('session options %O', sess);
 
 app.use(session(sess));
 
@@ -115,8 +114,6 @@ app.use(function(req, res, next) {
   next(createError(404));
 });
 
-// TODO: how to handle the production environment???
-//
 // error handler middleware - catch all the errors here
 app.use((err, req, res, next) => {
   // console.log('*** error handling middleware ***', err);
@@ -126,7 +123,7 @@ app.use((err, req, res, next) => {
     req.path,
     err.message
   );
-  res.status(422).send({ error: err.message });
+  res.status(422).send({ error: 'Unprocessable Entity' });
 });
 
 // ---------------------------------------------------------------------

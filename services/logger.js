@@ -5,8 +5,9 @@ const winston = require('winston');
 //   // return `${info.timestamp} [${info.label}] ${info.level}: ${info.message}`;
 //   return `${info.timestamp} ${info.level}: ${info.message}`;
 // });
+const logLevel = process.env.LOG_LEVEL || 'debug';
 const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL,
+  level: logLevel,
   format: winston.format.combine(
     winston.format.splat(),
     winston.format.timestamp(),
@@ -15,13 +16,13 @@ const logger = winston.createLogger({
   ),
   transports: [
     new winston.transports.Console({
-      // stderrLevels: ['error', 'warn', 'info', 'verbose', 'debug', 'silly'],
+      stderrLevels: ['error', 'warn'],
       handleExceptions: true,
     }),
   ],
   exitOnError: false,
 });
 
-logger.info('Winston log level: %s', process.env.LOG_LEVEL);
+logger.info('Winston log level: %s', logger.level);
 
 module.exports = logger;

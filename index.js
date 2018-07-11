@@ -16,6 +16,8 @@ const FileStore = require('session-file-store')(session);
 const passport = require('passport');
 // const cors = require('cors');
 
+const winston = require('winston');
+
 // debugging
 const debug = require('debug')('myapi:index');
 
@@ -25,6 +27,23 @@ const homeRouter = require('./routes/home');
 // ===================================================================
 
 debug('NODE_ENV: %s', process.env.NODE_ENV);
+
+// winston
+// const myFormat = winston.format.printf(info => {
+//   // return `${info.timestamp} [${info.label}] ${info.level}: ${info.message}`;
+//   return `${info.timestamp} ${info.level}: ${info.message}`;
+// });
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.simple()
+    // myFormat
+  ),
+  transports: [
+    new winston.transports.Console({ stderrLevels: ['error', 'warn'] }),
+  ],
+});
 
 // Passport configuration first
 //
@@ -77,6 +96,8 @@ if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test') {
 }
 
 debug('session options: %O', sess);
+
+logger.info('session options', sess);
 
 app.use(session(sess));
 

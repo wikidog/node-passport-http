@@ -5,45 +5,30 @@
 // load dotenv as early as possible
 require('dotenv').config();
 
+// debugging
+const debug = require('debug')('myapi:index');
+
+// logger
+const morgan = require('morgan');
+const logger = require('./services/logger');
+
 //
 const express = require('express');
 const createError = require('http-errors');
 //const bodyParser = require('body-parser'); // use the built-in express.json
-const morgan = require('morgan');
 // const cookieSession = require('cookie-session');
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 const passport = require('passport');
 // const cors = require('cors');
 
-const winston = require('winston');
-
-// debugging
-const debug = require('debug')('myapi:index');
-
+// routes
 const apiV1Router = require('./routes/api_v1');
 const userRouter = require('./routes/user');
 const homeRouter = require('./routes/home');
 // ===================================================================
 
 debug('NODE_ENV: %s', process.env.NODE_ENV);
-
-// winston
-// const myFormat = winston.format.printf(info => {
-//   // return `${info.timestamp} [${info.label}] ${info.level}: ${info.message}`;
-//   return `${info.timestamp} ${info.level}: ${info.message}`;
-// });
-const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.simple()
-    // myFormat
-  ),
-  transports: [
-    new winston.transports.Console({ stderrLevels: ['error', 'warn'] }),
-  ],
-});
 
 // Passport configuration first
 //
@@ -53,7 +38,8 @@ require('./services/passport');
 //
 const app = express();
 
-app.use(morgan('combined'));
+// use winston to log morgan's log
+app.use(morgan('combined', { stream: { write: msg => logger.info(msg) } }));
 
 // allow CORS requests
 //
@@ -97,7 +83,7 @@ if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test') {
 
 debug('session options: %O', sess);
 
-logger.info('session options', sess);
+// logger.info('session options %O', sess);
 
 app.use(session(sess));
 
@@ -133,7 +119,13 @@ app.use(function(req, res, next) {
 //
 // error handler middleware - catch all the errors here
 app.use((err, req, res, next) => {
-  console.log('*** error handling middleware ***', err);
+  // console.log('*** error handling middleware ***', err);
+  logger.error(
+    '[Error Handler] %s - %s - %s',
+    req.method,
+    req.path,
+    err.message
+  );
   res.status(422).send({ error: err.message });
 });
 
@@ -145,5 +137,5 @@ const port = process.env.PORT || 5000;
 // server.listen(port);
 // console.log(`Server running at http://localhost:${port}/`);
 app.listen(port, () =>
-  console.log(`Server running at http://localhost:${port}/`)
+  logger.info(`Server running at http://localhost:${port}/`)
 );

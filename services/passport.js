@@ -4,6 +4,7 @@ const Strategy = require('passport-http').BasicStrategy;
 const ldap = require('ldapjs');
 
 const debug = require('debug')('myapi:passport');
+const logger = require('./logger');
 
 // 'user' is the user object
 // serialize user and put it in the cookie
@@ -18,7 +19,8 @@ passport.deserializeUser((id, done) => {
 
 passport.use(
   new Strategy((username, password, done) => {
-    debug('username: %s', username);
+    debug('Authenticate user:[%s]', username);
+    logger.info('Authenticate user:[%s]', username);
 
     if (process.env.NODE_ENV === 'development_external') {
       debug('!!! LDAP Simulation!!!');
@@ -42,9 +44,13 @@ passport.use(
         },
       });
 
+      debug('Authenticate user:[%s] via LDAP...', username);
+      logger.info('Authenticate user:[%s] via LDAP...', username);
+
       ldapClient.bind(`${process.env.DOMAIN}\\${username}`, password, err => {
         if (err) {
           debug('!!! LDAP error: %O', err);
+          logger.warn('Not authenticated, user:[%s]', username);
           ldapClient.unbind(); // close the connection
           return done(null, false);
         } else {

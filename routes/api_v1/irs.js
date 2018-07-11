@@ -1,6 +1,7 @@
 const fse = require('fs-extra');
 const path = require('path');
 const debug = require('debug')('myapi:irs');
+const logger = require('../../services/logger');
 
 const express = require('express');
 const router = express.Router();
@@ -26,7 +27,8 @@ router.get('/:irID/files', (req, res, next) => {
   let irID = req.params.irID;
 
   if (isNaN(irID) || !/^\d{7}$/.test(irID)) {
-    res.status(404).json({ error: 'Not Found in route handler' });
+    logger.error('Invalid IR number:[%s]', irID);
+    res.status(404).json({ error: 'Not Found' });
     return; // exit this handler
   }
 

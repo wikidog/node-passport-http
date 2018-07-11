@@ -1,5 +1,6 @@
 const passport = require('passport');
 const debug = require('debug')('myapi:auth');
+// const logger = require('../services/logger');
 
 // // by default, passport tries to use session based authentication
 // // we have to disable it - don't create session after successful authentication
@@ -8,7 +9,8 @@ const debug = require('debug')('myapi:auth');
 
 const ensureAuthenticated = (req, res, next) => {
   if (req.isAuthenticated()) {
-    debug('>>> User is authenticated: %s', req.user);
+    debug('>>> User is authenticated, user object:[%O]', req.user);
+    // logger.info('User is authenticated, user object:[%O]', req.user);
     return next();
   } else {
     debug('!!! User is NOT authenticated !!!!!!!!!!!!!');

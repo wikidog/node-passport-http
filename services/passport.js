@@ -19,8 +19,8 @@ passport.deserializeUser((id, done) => {
 
 passport.use(
   new Strategy((username, password, done) => {
-    debug('Authenticate user:[%s]', username);
-    logger.info('Authenticate user:[%s]', username);
+    debug('Authenticating user:[%s]...', username);
+    logger.info('Authenticating user:[%s]...', username);
 
     if (process.env.NODE_ENV === 'development_external') {
       debug('!!! LDAP Simulation!!!');
@@ -44,8 +44,8 @@ passport.use(
         },
       });
 
-      debug('Authenticate user:[%s] via LDAP...', username);
-      logger.info('Authenticate user:[%s] via LDAP...', username);
+      debug('Authenticate user via LDAP');
+      logger.info('Authenticate user via LDAP');
 
       ldapClient.bind(`${process.env.DOMAIN}\\${username}`, password, err => {
         if (err) {

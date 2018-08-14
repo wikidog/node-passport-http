@@ -32,7 +32,7 @@ router.get('/:irID/files', (req, res, next) => {
     return; // exit this handler
   }
 
-  Promise.all([getFileListNoexp(), getFileListExp()])
+  Promise.all([getFileListNoexp(irID), getFileListExp()])
     .then(results => {
       debug('Async call results: %O', results);
       fileList.noexport = results[0];
@@ -65,18 +65,23 @@ router.get('/:irID/files', (req, res, next) => {
   //   });
 });
 
-const getFileListNoexp = async () => {
+const getFileListNoexp = async irID => {
   let result = [];
 
   const startPath = process.env.DATA_FILE_DIR;
   //
   const files = await fse.readdir(startPath);
   for (const file of files) {
+    console.log('irID:', irID);
+    console.log('file:', file);
+    console.log(file.startsWith(irID));
     const filename = path.join(startPath, file);
-    const stat = await fse.stat(filename);
-    if (stat.isFile()) {
-      result.push(file);
-      // console.log(stat);
+    if (file.startsWith(irID)) {
+      const stat = await fse.stat(filename);
+      if (stat.isFile()) {
+        result.push(file);
+        // console.log(stat);
+      }
     }
   }
   return result;

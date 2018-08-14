@@ -72,9 +72,9 @@ const getFileListNoexp = async irID => {
   //
   const files = await fse.readdir(startPath);
   for (const file of files) {
-    console.log('irID:', irID);
-    console.log('file:', file);
-    console.log(file.startsWith(irID));
+    // console.log('irID:', irID);
+    // console.log('file:', file);
+    // console.log(file.startsWith(irID));
     const filename = path.join(startPath, file);
     if (file.startsWith(irID)) {
       const stat = await fse.stat(filename);

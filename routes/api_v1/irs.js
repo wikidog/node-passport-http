@@ -23,7 +23,7 @@ router.get('/me', (req, res) => {
 router.get('/:irID/files', (req, res, next) => {
   let fileList = {
     noexport: [],
-    export: [],
+    exported: [],
   };
 
   let irID = req.params.irID;
@@ -38,7 +38,7 @@ router.get('/:irID/files', (req, res, next) => {
     .then(results => {
       debug('Async call results: %O', results);
       fileList.noexport = results[0];
-      fileList.export = results[1];
+      fileList.exported = results[1];
       res.json(fileList);
     })
     .catch(err => {

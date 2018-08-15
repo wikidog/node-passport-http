@@ -1,5 +1,7 @@
 const fse = require('fs-extra');
 const path = require('path');
+const axios = require('axios');
+
 const debug = require('debug')('myapi:irs');
 const logger = require('../../services/logger');
 
@@ -32,7 +34,7 @@ router.get('/:irID/files', (req, res, next) => {
     return; // exit this handler
   }
 
-  Promise.all([getFileListNoexp(irID), getFileListExp()])
+  Promise.all([getFileListNoexp(irID), getFileListExp(irID)])
     .then(results => {
       debug('Async call results: %O', results);
       fileList.noexport = results[0];
@@ -87,10 +89,16 @@ const getFileListNoexp = async irID => {
   return result;
 };
 
+const exportedUrl =
+  'https://upload1.industrysoftware.automation.siemens.com/cgi-bin-ip/lsexp.cgi?ir=';
 // TODO: finish the /exported api call
-const getFileListExp = async () => {
-  let result = await asyncCall();
-  return result;
+const getFileListExp = async irID => {
+  // let result = await asyncCall();
+  // return result;
+
+  const res = await axios.get(`${exportedUrl}${irID}`);
+  // console.log(res.data);
+  return res.data;
 };
 
 const asyncCall = () => {

@@ -71,33 +71,31 @@ const getFileListNoexp = async irID => {
   let result = [];
 
   const startPath = process.env.DATA_FILE_DIR;
-  //
-  const files = await fse.readdir(startPath);
-  for (const file of files) {
-    // console.log('irID:', irID);
-    // console.log('file:', file);
-    // console.log(file.startsWith(irID));
-    const filename = path.join(startPath, file);
-    if (file.startsWith(irID)) {
-      const stat = await fse.stat(filename);
-      if (stat.isFile()) {
-        result.push(file);
-        // console.log(stat);
+  const dir = `${startPath}/${irID.substr(0, 4)}/${irID}/external_data`;
+
+  //! the 'dir' might not exist
+  try {
+    const files = await fse.readdir(dir);
+    for (const file of files) {
+      const filename = path.join(dir, file);
+      if (file.startsWith(irID)) {
+        const stat = await fse.stat(filename);
+        if (stat.isFile()) {
+          result.push(file);
+        }
       }
     }
+    return result;
+  } catch (e) {
+    return result;
   }
-  return result;
 };
 
 const exportedUrl =
   'https://upload1.industrysoftware.automation.siemens.com/cgi-bin-ip/lsexp.cgi?ir=';
 // TODO: finish the /exported api call
 const getFileListExp = async irID => {
-  // let result = await asyncCall();
-  // return result;
-
   const res = await axios.get(`${exportedUrl}${irID}`);
-  // console.log(res.data);
   return res.data;
 };
 

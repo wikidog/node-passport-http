@@ -93,7 +93,6 @@ const getFileListNoexp = async irID => {
 
 const exportedUrl =
   'https://upload1.industrysoftware.automation.siemens.com/cgi-bin-ip/lsexp.cgi?ir=';
-// TODO: finish the /exported api call
 const getFileListExp = async irID => {
   const res = await axios.get(`${exportedUrl}${irID}`);
   return res.data;
